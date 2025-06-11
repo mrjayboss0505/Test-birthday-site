@@ -1,3 +1,26 @@
+
+          // Import the functions you need from the SDKs you need
+          import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+          import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+          // TODO: Add SDKs for Firebase products that you want to use
+          // https://firebase.google.com/docs/web/setup#available-libraries
+        
+          // Your web app's Firebase configuration
+          const firebaseConfig = {
+            apiKey: "AIzaSyC7vXYeeqYbRvPegxioU8PsHQHA9dCyZoY",
+            authDomain: "birthday-wishes-1e231.firebaseapp.com",
+            projectId: "birthday-wishes-1e231",
+            storageBucket: "birthday-wishes-1e231.firebasestorage.app",
+            messagingSenderId: "834276538989",
+            appId: "1:834276538989:web:c4ebbdeb611052445b1d64"
+          };
+        
+          // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+       
         // Mobile nav toggle
         document.getElementById("menuToggle").addEventListener("click", function () {
             const navLinks = document.getElementById("navLinks");
@@ -22,6 +45,21 @@
 
         // Current wish index
         let currentWishIndex = 0;
+
+        onValue(ref(db, "wishes"), (snapshot) => {
+          const data = snapshot.val();
+          if (!data) return;
+        
+          wishes.length = 0; // clear the array
+        
+          for (let key in data) {
+            wishes.push(data[key]);
+          }
+        
+          currentWishIndex = wishes.length - 1;
+          displayCurrentWish();
+        });
+
 
         // Function to display current wish
         function displayCurrentWish() {
@@ -64,10 +102,11 @@
             }
             
             // Add new wish to the array
-            wishes.push({
-                message: message,
-                author: name
+            push(ref(db, "wishes"), {
+              author: name,
+              message: message
             });
+
             
             // Display the newly added wish
             currentWishIndex = wishes.length - 1;
